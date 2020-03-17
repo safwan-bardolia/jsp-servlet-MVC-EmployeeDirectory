@@ -1,0 +1,277 @@
+1)create Entity class i.e java class/POJO(plain old java object).
+	Employee.java in(entity package)
+
+Model is EmployeeDao which maintain the application database using jdbc
+
+**************************************************************************************************************************************************************************************
+
+to access the database , "EmployeeDAO (our Model class)" needs DB connection therefor
+2)create helper class which gives you connection object
+	"DBConnectionUtil.java"   which contains static methode & return connection object
+
+**************************************************************************************************************************************************************************************
+
+3)create com.DAO package
+	It takes use of helper class DBconnectionUtil to get the Database connection
+	once it get connection It query to the database to get the list of employees
+
+	steps
+		1)create "EmployeeDAO interface" which contain ""List<Employee> get()""; 	//it return list of employyes object
+		2)now implement interface using "EmployeeDAOImpl.java"
+
+**************************************************************************************************************************************************************************************
+
+4)Update Employee controller									//initially we have created just for checking app
+	Employye controller will make use of Employee DAO
+		*to get the list of employees
+		*set the list to request object
+		*forward the list to jsp (using request dispatcher)
+
+	//reference the interface object
+
+	**inside constructor initialize "EmployeeDAO" object using implementation class
+		note that we have to create object of implementation class not an interface
+		
+		[
+			EmployeeDAO employeeDAO=null;  //reference of interface
+			
+	    		public EmployeeController() {
+        			employeeDAO=new EmployeeDAOImpl();  //constructor of implementation class
+    			}
+		]
+
+**************************************************************************************************************************************************************************************
+
+5)update Employee-list.jsp(view)			//initially we have created just for checking app
+							//and dsiplay data
+
+**************************************************************************************************************************************************************************************
+
+6)adding bootstrap to table (jsp)
+
+**************************************************************************************************************************************************************************************
+
+
+
+7)add button(add employee) to the page for inserting record to database 
+	& when click on button it navigates to another page(employee-add.jsp) for inserting record
+	<button type="button" class="btn btn-primary" onclick="window.location.href='views/employee-add.jsp'">Add Employee</button>
+
+**************************************************************************************************************************************************************************************
+
+
+
+8)in employee-add.jsp
+	when we submit the form then request goes to contoller class using method="post" and using name attribute we can fetch data using "request.getparameter(...)"
+				
+	<div class="container">
+		<form action="${pageContext.request.contextPath}/EmployeeController" method="post">  //${} in order to get root name of appliaction and navigate to controller class
+						   						     		
+			Enter name:<input type="text" name="name"/><br> 
+			Enter date of birth:<input type="date" name="dob"/><br>
+			Enter Designation:<input type="text" name="designation"/><br>
+			<button class="btn btn-primary" type="submit">Save employye</button>
+		</form>
+	</div>
+
+
+
+**************************************************************************************************************************************************************************************
+
+
+9)@@@@@@@@@@@@send data to database(ADD data) (using doPost())
+
+	therefor create boolean save(Employee e);  //methode in DAO (interface & implementation)  //which takes Employee object as an argument
+	
+	$$$$$$$$$$$$$$$$$$$$$$$$$$$
+	steps
+		1)when client click on "Add EMployee" button we have navigate to differnet page for taking information ,
+		2)therefor we create "form" on this new page,when user click on submit button we have to store data in database
+			a)therefor we link the form to "Employeecontroller class" using "post" methode & action argument(url)
+			b)now Employeecontroller class call "save(Employye obj)" methode of DAO class by passing employee obj which takes data from "form" using (request.getparameter(..))
+			c)and finally DAO class execute query to the database
+
+*********important step******** see last video in folder 9
+
+
+	Q)how to display list when i enter the record?
+	->step-1)1st use welcome file to navigate to EmployeeContoller and pass the "action=LIST" argument
+		now depending on action parameter like Add,delete,update,list required methode() in employee controller is called 
+		<% response.sendRedirect("EmployeeController?action=LIST") %>
+
+		now update doget() methode which is responcible for required operation using "switch"
+
+	$$$$$$$$$$%%%%%%%%%%%%%%^^^^^^^^^^^^^^^^^^^^*************************
+	when our app is loaded then by using welcome page we navigate it to the "Employeecontoller" class by passing argument as "list"
+	therefor from action parameter in doget() methode,listEmployee() methode is called which is 1st step of our app and display employee list
+
+
+**************************************************************************************************************************************************************************************
+
+
+
+
+10)@@@@@@@@@@@@@Update
+	step 1:
+		for update ,1st read the corrsponding record  // to write existing data to "form" when we update it
+		& then update
+		therefor link each record to EMployeeController & pass "action=EDIt" & id parameter
+
+	step 2:
+		call the "getSingleEmployee(..)" which will return single record i.e Employee object
+	
+	step-3:
+		attach that record to "request" object and dispatch the request to "employee-add.jsp"
+
+	step-4:   
+		now in "form" we only get "Employee" object when we "update" record
+	
+
+	$$$$$******IMPORTANT
+	step-5:	
+		and in EMployeeController we get "id" only when we update record 
+		otherwise it is null
+		as when we add record (because "id" is automatically generated in database using sequence)
+
+
+**************************************************************************************************************************************************************************************
+
+
+11)@@@@@@@@@@@@	delete 
+
+
+**************************************************************************************************************************************************************************************
+
+
+
+12@@@@@@@@@@@@@ Add jQuery Datatable (i.e liabrary for searching,sorting.....)     //https://www.youtube.com/watch?v=JcS5d2pIjk8
+
+		To have Sorting, Searching, and Paging for a table, it takes lot of efforts to write code to have all these features. But jQuery Datatable is here to rescue you.
+
+
+	
+	a)1st add jquery liabrary because datatables depend on jquery	  
+		go to---   jquery unpkg->jquery.min.js->view raw->copy url
+
+	b)datatables.net->download  //(datatable cdn)
+		1)Step 1. Choose a styling framework
+			Bootstrap 4
+		2)Step 2. Select packages
+			DataTables
+		3)copy both cdn link
+
+
+	now add script code
+	<script>
+			$(document).ready(function(){
+				$("#datatable").DataTable();		//"#datatable"  -->table id		
+			})
+	
+	</script>
+
+
+
+**************************************************************************************************************************************************************************************
+
+
+13)@@@@@@@@@@@@@@ create login form
+		
+		 instead of displaying record at landing page, we create login form on landing page		
+
+
+		steps:
+			when we enter login info then control goes to "loginController.java" (controoler) where we authentiacte user
+			once the user authenticate then we pass contol to "employeeController.java" where we display record		
+
+	 
+		step1:
+			create tbl_login table in database		
+	
+		step2:
+			1)create POJO class ,login.java in(entity package)	  	
+	
+		step3:
+			create controller class in EmployeeDirectoryController package to handle email & password
+			i.e  "loginController.java"
+		
+			give url of "loginController" in "action" ,and methode="post"  as information is not visible to user
+
+		step4:
+			now pass this form info to "DAO"
+			create "loginDAO.java" Inteface & its implemenation "loginDAOimpl.java" in DAO package
+
+
+
+		{
+			when user submit email & password into form we transfer that info to "loginController.java" then
+			"loginController.java" copy that info into login object (POJO class object)
+			we pass this "login" object to "loginDAO methode authenticate()" which takes login object as argument
+			depending on email & password present in database it authenticat user & return "status" either "true" ,"false" or "error"
+			if it return "true"  then authenication is succsessful & pass contol to "EmployeeController.java" with "action=list"
+			otherwise navigate to login page again
+		}
+ 
+
+		once user login succsessfully then store email in session before navigate to EmployeeController  (in loginController)
+			if(status.equals("true")) {
+				"write session code here"
+				response.sendRedirect("EmployeeController?action=LIST");
+			}
+
+
+		and in index.jsp  fetch this session attribute
+		{
+				<%
+					//we get email from session attribute 
+					String email=(String)session.getAttribute("email"); 
+		
+					//this will execute when user already logged in
+					//when user already logged in then directly go to  {EmployeeController.java} & display list
+					if(email != null){
+						response.sendRedirect("EmployeeController?action=LIST");
+					}
+				%>
+	
+
+		}
+
+
+**************************************************************************************************************************************************************************************			
+					
+14)@@@@@@@@@ log out
+             
+             create logout link in "employye-list" & navigate to "logout.jsp"
+	     {
+		<div class="float-right">
+			<a href="${pageContext.request.contextPath}/logout.jsp">Logout</a>
+		</div>
+	     }
+		
+	     
+	     step1:
+		create "logout.jsp" file when contol comes to this file then
+		we invalidate() session & navigate to "login.jsp"
+		{
+			<%
+			session.invalidate();
+			response.sendRedirect("index.jsp");
+			%>
+		}
+
+
+	     step2:	
+		but problem is when user directly navigate to "EmployeeController.java" then it also display list
+		therefor to overcome this,at the top wite following code  
+		{
+			<%
+				String string=(String)session.getAttribute("email");
+				if(string==null){
+					response.sendRedirect("index.jsp");
+				}
+			%>
+		}
+
+		i.e if user not logged in then navigate to "index.jsp"		
+
+
+	    
